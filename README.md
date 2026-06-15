@@ -1,91 +1,161 @@
-# Bot Bancario para Telegram 🏦
+# Telegram Banking Chatbot
 
-Bot conversacional para Telegram que implementa servicios típicos de una entidad bancaria con procesamiento de lenguaje natural e integración con IA.
+A Python-based Telegram chatbot that simulates core digital banking workflows. This repository is presented as a technical assessment and portfolio project, with a focus on conversational UX, simple authentication, SQLite persistence, Docker support, and an optional OpenAI integration for general banking questions.
 
-## Funcionalidades 🚀
+## Overview
 
-- **Autenticación**: Verificación de PIN (por defecto: 1234)
-- **Consulta de saldo**: Obtener saldo actual de cuenta
-- **Movimientos**: Los usuarios tienen 4 movimientos por defecto al crearse (depósito inicial, compra, transferencia y pago)
-- **Simulación de préstamos**: Tasas personalizadas según interacciones del usuario (mejora con el uso)
-- **Consultas generales mediante IA**: Respuestas vía OpenAI sobre productos bancarios
-- **Persistencia**: Base de datos SQLite
+The bot lets a demo user authenticate with a PIN, check their account balance, review recent transactions, and simulate a personal loan. It also detects common banking intents from natural language messages and can use OpenAI to answer general questions about banking products when `OPENAI_API_KEY` is configured.
 
-## Requisitos técnicos 💻
+## Features
 
-- Python 3.10+
-- Telegram Bot API Token
-- OpenAI API Key (indispensable para las consultas generales bancarias)
+- PIN-based demo authentication.
+- Balance lookup backed by SQLite.
+- Recent transaction history.
+- Personal loan simulation with a dynamic interest-rate adjustment based on user interactions.
+- Natural language intent detection for balance, transactions, and loans.
+- Optional OpenAI-powered responses for general banking questions.
+- Docker-ready runtime.
+- Environment-based configuration with no secrets committed to the repository.
 
-## Instalación 🛠️
+## Tech Stack
 
-1. **Clonar el repositorio**
+- Python 3.10
+- python-telegram-bot 20.6
+- OpenAI Python SDK 1.14.3
+- python-dotenv
+- SQLite
+- Docker
 
-```bash
-git clone https://github.com/SantinoBertoia/Evaluacion-Tecnica-Delto-Santino-Bertoia.git
-cd bot-bancario
+## Architecture
+
+```text
+.
+|-- main.py          # Telegram bot handlers, authentication flow, and command routing
+|-- ai.py            # Intent detection and optional OpenAI integration
+|-- db.py            # SQLite schema and data-access functions
+|-- logic.py         # Loan calculation and currency formatting
+|-- data/            # Runtime SQLite database location
+|-- Dockerfile       # Container image definition
+`-- requirements.txt # Python dependencies
 ```
 
-2. **Configurar .env**
+Runtime data is stored in `data/banco.db`. The database file is generated automatically when the bot starts and is intentionally ignored by Git.
 
-```bash
-TELEGRAM_TOKEN=tu_token_aqui
-OPENAI_API_KEY=tu_api_key_aqui  # Necesaria para responder consultas bancarias
+## Environment Variables
+
+Create a `.env` file based on `.env.example`.
+
+```env
+TELEGRAM_TOKEN=your_telegram_bot_token_here
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-3. **Instalar dependencias y ejecutar**
+| Variable | Required | Description |
+| --- | --- | --- |
+| `TELEGRAM_TOKEN` | Yes | Telegram Bot API token generated with BotFather. The app stops with a clear error if this value is missing. |
+| `OPENAI_API_KEY` | No | Enables general banking Q&A through OpenAI. If omitted, the bot still runs and returns a controlled message for general AI questions. |
+
+## Local Setup
+
+1. Clone the repository.
+
+```bash
+git clone <repository-url>
+cd python-banking-chatbot
+```
+
+2. Create and activate a virtual environment.
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+On macOS or Linux:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+3. Install dependencies.
 
 ```bash
 pip install -r requirements.txt
+```
+
+4. Configure environment variables.
+
+```bash
+copy .env.example .env
+```
+
+On macOS or Linux:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` and set `TELEGRAM_TOKEN`. `OPENAI_API_KEY` is optional.
+
+5. Run the bot.
+
+```bash
 python main.py
 ```
 
-## Uso con Docker 🐳
+## Docker Setup
+
+Build the image:
 
 ```bash
-# Construir y ejecutar
-docker build -t bot-bancario .
-docker run -d --name bot-bancario -v $(pwd)/data:/app/data --env-file .env bot-bancario
+docker build -t telegram-banking-chatbot .
 ```
 
-## Estructura del proyecto 📁
+Run the container with your `.env` file and a mounted data directory:
 
-```
-├── main.py      # Código principal del bot
-├── db.py        # Base de datos SQLite
-├── logic.py     # Lógica de préstamos
-├── ai.py        # Integración con OpenAI
-├── Dockerfile   # Configuración Docker
-└── README.md
+```bash
+docker run --rm --name telegram-banking-chatbot --env-file .env -v ${PWD}/data:/app/data telegram-banking-chatbot
 ```
 
-## Comandos disponibles 📝
+On Windows PowerShell, use:
 
-- `/start` - Iniciar y autenticarse
-- `/saldo` - Consultar saldo
-- `/movimientos` - Ver movimientos
-- `/prestamo` - Simular préstamo
-- `/cancelar` - Cancelar proceso
-- `/ayuda` - Ver comandos
+```powershell
+docker run --rm --name telegram-banking-chatbot --env-file .env -v ${PWD}/data:/app/data telegram-banking-chatbot
+```
 
-El bot también responde a lenguaje natural:
+## Available Commands
 
-- "¿Cuánto tengo en mi cuenta?"
-- "Necesito un préstamo"
-- "¿Qué tarjetas ofrecen?"
+- `/start` - Start or restart the bot and begin authentication.
+- `/saldo` - Show the current account balance.
+- `/movimientos` - Show recent account transactions.
+- `/prestamo` - Start the personal loan simulation flow.
+- `/cancelar` - Cancel the active loan simulation flow.
+- `/ayuda` - Show help and example questions.
 
-## Valores por defecto 🔑
+The bot also understands natural language messages such as:
 
-- **PIN de acceso**: 1234
-- **Saldo inicial**: $9,000 (generado por los movimientos iniciales)
-- **Tasa de préstamos**: 55% TEA base, con descuento según interacciones del usuario
-- **Límite de préstamo**: $5,000,000
-- **Plazo máximo**: 60 meses
+- "Cuanto tengo en mi cuenta?"
+- "Mostrame los ultimos movimientos"
+- "Necesito un prestamo"
+- "Que tarjetas ofrecen?"
 
-## Notas sobre la implementación 🔍
+## Default Demo PIN
 
-Al recibir el correo con la prueba técnica, observé que el documento indicaba un tiempo estimado de 8 horas para completar la tarea. Sin embargo, no me quedo claro si ese tiempo era a partir de la recepción del correo o si debía gestionarlo de manera autónoma. Debido a esto, deduje que debía completar la prueba en un plazo de 8 horas desde el envío del correo. El problema fue que vi el correo un poco tarde y en el medio del desarollo tuve un imprevisto personal, debido a esto, decidí enviarla a las 16:30 tras haber dedicado 6 horas al desarrollo. A pesar de no haber podido perfeccionarlo por completo, lo hago con la intención de entregar una solución funcional dentro del tiempo disponible, aunque reconozco que podría haber optimizado ciertos aspectos si hubiera tenido más tiempo.
+The default demo PIN is:
 
-Por otro lado, en cuanto a la implementación de la inteligencia artificial, el documento sugería su uso, por lo que decidí integrar OpenAI a través de ChatGPT. Durante el proceso, desarrollé toda la lógica para la integración, pero lamentablemente no pude probarla de manera exhaustiva, ya que no cuento con una API Key para OpenAI debido a que es un servicio pago. Me imaginé que, en un futuro, en caso de poder colaborar con ustedes, tendría acceso a las claves necesarias para probar y afinar la integración de manera correcta. Sin embargo, reconozco que no haber podido probarlo a fondo limita la verificación de su funcionamiento, y aunque creo que la implementación está bien planteada, podría haber algún error que sería necesario corregir.
+```text
+1234
+```
 
-Agradezco mucho la oportunidad de haber podido realizar esta prueba técnica y la comprensión frente a las limitaciones que pude haber tenido durante el proceso. Espero que la solución presentada sea de su agrado y que haya cumplido con las expectativas.
+When a new Telegram user starts the bot, the app creates a local demo profile with simulated initial movements and a starting balance derived from those movements.
+
+## Future Improvements
+
+- Move the demo PIN to an environment variable.
+- Add automated tests for handlers, loan calculations, and database operations.
+- Replace the demo authentication flow with a production-ready identity provider.
+- Add database migrations for schema evolution.
+- Add structured logging and monitoring.
+- Add CI checks for formatting, linting, and tests.
+- Expand the OpenAI integration with stricter guardrails and domain-specific evaluation cases.

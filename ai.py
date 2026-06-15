@@ -1,13 +1,17 @@
 import os
-import openai
 from dotenv import load_dotenv
+from openai import OpenAI
 
 # Cargar variables de entorno
 load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 
-# Configurar la API de OpenAI
-openai.api_key = OPENAI_API_KEY
+client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+
+OPENAI_UNAVAILABLE_MESSAGE = (
+    "La integración con OpenAI no está configurada. "
+    "Las consultas generales estarán disponibles cuando se defina OPENAI_API_KEY."
+)
 
 # Contexto para preguntas bancarias
 BANKING_CONTEXT = """
@@ -42,8 +46,11 @@ async def get_ai_response(user_message):
     Returns:
         str: Respuesta del asistente
     """
+    if client is None:
+        return OPENAI_UNAVAILABLE_MESSAGE
+
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": BANKING_CONTEXT},
@@ -52,7 +59,8 @@ async def get_ai_response(user_message):
             max_tokens=200,
             temperature=0.7
         )
-        return response['choices'][0]['message']['content']
+        content = response.choices[0].message.content
+        return content.strip() if content else OPENAI_UNAVAILABLE_MESSAGE
     except Exception as e:
         print(f"Error con OpenAI: {e}")
         return "Lo siento, no puedo responder esa consulta en este momento. Por favor, intenta más tarde."

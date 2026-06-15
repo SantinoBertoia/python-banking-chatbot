@@ -75,6 +75,7 @@ def get_user(user_id):
 
 def create_user(user_id, nombre="Usuario"):
     """Crear un nuevo usuario con saldo inicial generado por movimientos simulados"""
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
@@ -120,6 +121,7 @@ def create_user(user_id, nombre="Usuario"):
 
 def update_interactions(user_id):
     """Actualizar contador de interacciones"""
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
@@ -140,6 +142,7 @@ def update_interactions(user_id):
 
 def get_balance(user_id):
     """Obtener saldo del usuario"""
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
@@ -161,6 +164,7 @@ def get_balance(user_id):
 
 def save_transaction(user_id, descripcion, monto):
     """Guardar un movimiento en la cuenta"""
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
@@ -191,6 +195,7 @@ def save_transaction(user_id, descripcion, monto):
 
 def get_transactions(user_id, limit=5):
     """Obtener últimos movimientos"""
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
@@ -221,6 +226,7 @@ def get_transactions(user_id, limit=5):
 
 def save_loan_simulation(user_id, monto, plazo, tasa, cuota, total):
     """Guardar simulación de préstamo"""
+    conn = None
     try:
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()

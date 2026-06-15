@@ -15,10 +15,7 @@ from ai import detect_intent, get_ai_response
 
 # Cargar variables del entorno
 load_dotenv()
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-
-# Inicializar la base de datos
-init_db()
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "").strip()
 
 # Estados para el flujo de conversación del préstamo
 MONTO, PLAZO = range(2)
@@ -261,6 +258,14 @@ async def procesar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def main():
+    if not TELEGRAM_TOKEN:
+        raise SystemExit(
+            "TELEGRAM_TOKEN is not configured. Set it in .env or as an environment variable before starting the bot."
+        )
+
+    if not init_db():
+        raise SystemExit("Could not initialize the SQLite database.")
+
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
     prestamo_handler = ConversationHandler(
