@@ -149,13 +149,3 @@ The default demo PIN is:
 ```
 
 When a new Telegram user starts the bot, the app creates a local demo profile with simulated initial movements and a starting balance derived from those movements.
-
-## Future Improvements
-
-- Move the demo PIN to an environment variable.
-- Add automated tests for handlers, loan calculations, and database operations.
-- Replace the demo authentication flow with a production-ready identity provider.
-- Add database migrations for schema evolution.
-- Add structured logging and monitoring.
-- Add CI checks for formatting, linting, and tests.
-- Expand the OpenAI integration with stricter guardrails and domain-specific evaluation cases.
